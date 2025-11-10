@@ -35,6 +35,7 @@ testem.log
 Thumbs.db
 
 .angular
+.sublime
 
 # Database
 data/

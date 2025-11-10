@@ -1,0 +1,35 @@
+.task-card {
+  @apply bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-shadow;
+}
+
+.task-card-title {
+  @apply text-lg font-semibold text-gray-900 mb-4;
+}
+
+.task-card-content {
+  @apply space-y-3;
+}
+
+.task-card-item {
+  @apply flex items-center;
+}
+
+.task-card-bullet {
+  @apply w-2 h-2 bg-gray-400 rounded-full mr-3;
+}
+
+.task-card-bar {
+  @apply h-2 bg-gray-300 rounded flex-1;
+}
+
+.task-card-bar.small {
+  @apply max-w-xs;
+}
+
+.task-card-bar.medium {
+  @apply max-w-sm;
+}
+
+.task-card-bar.large {
+  @apply max-w-md;
+}

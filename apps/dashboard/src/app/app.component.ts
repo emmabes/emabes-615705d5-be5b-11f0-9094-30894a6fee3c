@@ -1,12 +1,16 @@
 import { Component } from '@angular/core';
-import { NxWelcomeComponent } from './nx-welcome.component';
+import { DashboardLayoutComponent } from './layout/dashboard-layout.component';
+import { DashboardHomeComponent } from './features/dashboard/dashboard-home.component';
 
 @Component({
   standalone: true,
-  imports: [NxWelcomeComponent],
+  imports: [DashboardLayoutComponent, DashboardHomeComponent],
   selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
+  template: `
+    <app-dashboard-layout>
+      <app-dashboard-home></app-dashboard-home>
+    </app-dashboard-layout>
+  `,
 })
 export class AppComponent {
   title = 'dashboard';

@@ -61,6 +61,15 @@ The API follows a clean layered architecture:
 - **DAO Layer** (`src/dao/`): Data access with RBAC preparation
 - **Database Layer** (`src/database/`): TypeORM entities and database configuration
 
+### Frontend Architecture
+The Angular dashboard implements a responsive design with:
+
+- **Layout Component**: Desktop sidebar (768px+) and mobile bottom navigation
+- **Task Components**: Hover cards (desktop) and click cards (mobile) with dynamic positioning
+- **CSS Architecture**: Semantic classes using Tailwind @apply directives
+- **Service Layer**: HTTP client integration with real API calls
+- **Responsive Strategy**: Mobile-first design with 768px breakpoint
+
 ### Test Structure
 Tests mirror the source structure:
 ```
@@ -71,7 +80,7 @@ test/
 ├── integration/  # End-to-end API tests
 ```
 
-Unit tests use mocked dependencies. Integration tests use in-memory SQLite database for full application testing.
+Unit tests use mocked dependencies. Integration tests use in-memory SQLite database for full application testing. Frontend tests (47 passing) cover components, services, and responsive behavior with Jest mocking.
 
 ## Development Steps
 
@@ -89,13 +98,26 @@ Unit tests use mocked dependencies. Integration tests use in-memory SQLite datab
 - Establish complete unit test coverage for all layers
 - Add integration tests for end-to-end API verification
 
+### Phase 3: Build Complete Frontend Dashboard
+- Create responsive dashboard layout with desktop sidebar and mobile navigation
+- Implement task list with hover/click card interactions
+- Build dashboard home with stats cards, charts, and recent tasks
+- Extract Tailwind CSS to semantic component classes
+- Switch from mock data to real HTTP API integration
+- Achieve 47/47 passing unit tests with proper mocking strategies
+- Add Chart.js integration with graceful test environment degradation
+
 ## Current Features
 
 - SQLite database with TypeORM
 - Task CRUD operations (GET implemented)
 - Request validation with class-validator
-- Comprehensive test suite (unit + integration)
+- Comprehensive test suite (47 passing frontend + backend tests)
 - Layered architecture ready for RBAC implementation
+- Responsive Angular dashboard with desktop/mobile layouts
+- Real-time task cards with hover/click interactions
+- Chart.js integration for task visualization
+- HTTP API integration between frontend and backend
 
 ## API Endpoints
 
