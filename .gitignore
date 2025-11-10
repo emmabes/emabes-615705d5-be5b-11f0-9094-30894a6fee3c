@@ -35,3 +35,6 @@ testem.log
 Thumbs.db
 
 .angular
+
+# Database
+data/
