@@ -94,7 +94,7 @@
     "serve-static": {
       "executor": "@nrwl/web:file-server",
       "options": {
-        "buildTarget": "dashboard:build"
+        "buildTarget": "dashboard:build:production"
       }
     }
   }
