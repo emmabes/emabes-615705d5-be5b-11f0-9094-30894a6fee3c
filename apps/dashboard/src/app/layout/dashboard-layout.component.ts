@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -39,15 +39,29 @@ import { CommonModule } from '@angular/common';
       <main class="flex-1 flex flex-col overflow-hidden">
         <!-- Mobile Header -->
         <header class="md:hidden bg-white shadow-sm border-b">
-          <div class="px-4 py-3">
+          <div class="px-4 py-3 flex justify-between items-center">
             <h1 class="text-lg font-bold text-gray-800">Task Manager</h1>
+            <div class="flex items-center space-x-2">
+              <span class="text-xs text-gray-600">Mock</span>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" class="sr-only peer" (change)="toggleMockData($event)">
+                <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[1px] after:left-[1px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+              </label>
+            </div>
           </div>
         </header>
 
         <!-- Desktop Header -->
         <header class="hidden md:block bg-white shadow-sm border-b">
-          <div class="px-6 py-4">
+          <div class="px-6 py-4 flex justify-between items-center">
             <h2 class="text-2xl font-semibold text-gray-800">Dashboard</h2>
+            <div class="flex items-center space-x-2">
+              <span class="text-sm text-gray-600">Mock Data</span>
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" class="sr-only peer" (change)="toggleMockData($event)">
+                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+              </label>
+            </div>
           </div>
         </header>
         
@@ -84,4 +98,11 @@ import { CommonModule } from '@angular/common';
     </div>
   `
 })
-export class DashboardLayoutComponent {}
+export class DashboardLayoutComponent {
+  @Output() mockDataToggle = new EventEmitter<boolean>();
+
+  toggleMockData(event: Event) {
+    const target = event.target as HTMLInputElement;
+    this.mockDataToggle.emit(target.checked);
+  }
+}

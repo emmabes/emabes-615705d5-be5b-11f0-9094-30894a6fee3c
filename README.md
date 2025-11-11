@@ -120,12 +120,16 @@ Unit tests use mocked dependencies. Integration tests use in-memory SQLite datab
 - SQLite database with TypeORM
 - Task CRUD operations (GET implemented)
 - Request validation with class-validator
-- Comprehensive test suite (47 passing frontend + backend tests)
+- Comprehensive test suite (79 passing tests: 24 backend + 55 frontend)
 - Layered architecture ready for RBAC implementation
 - Responsive Angular dashboard with desktop/mobile layouts
 - Real-time task cards with hover/click interactions
 - Chart.js integration for task visualization
 - HTTP API integration between frontend and backend
+- **NEW**: Complete RBAC data models (User, Organization, Role, Permission)
+- **NEW**: Mock data toggle in header for testing
+- **NEW**: Separate mock data endpoint (/api/tasks/mocks)
+- **NEW**: CORS configuration for frontend-backend communication
 
 ## API Endpoints
 

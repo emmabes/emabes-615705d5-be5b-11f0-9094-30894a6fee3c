@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TaskService } from '../../services/task.service';
-import { Task } from '../../models/task.interface';
+import { Task } from '../../models/task.model';
 import { TaskCardComponent } from './task-card.component';
 
 @Component({
@@ -56,7 +56,9 @@ import { TaskCardComponent } from './task-card.component';
     </div>
   `
 })
-export class TaskListComponent implements OnInit {
+export class TaskListComponent implements OnInit, OnChanges {
+  @Input() useMockData = false;
+  
   tasks: Task[] = [];
   hoveredTask: Task | null = null;
   hoverCardPosition = { x: 0, y: 0 };
@@ -69,8 +71,18 @@ export class TaskListComponent implements OnInit {
     this.checkIfMobile();
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['useMockData']) {
+      this.loadTasks();
+    }
+  }
+
   private loadTasks() {
-    this.taskService.getTasks().subscribe({
+    const taskObservable = this.useMockData 
+      ? this.taskService.getMockTasks() 
+      : this.taskService.getTasks();
+      
+    taskObservable.subscribe({
       next: (tasks) => this.tasks = tasks,
       error: (error) => console.error('Error loading tasks:', error)
     });

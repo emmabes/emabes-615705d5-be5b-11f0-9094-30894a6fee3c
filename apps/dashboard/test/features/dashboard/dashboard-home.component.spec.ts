@@ -3,7 +3,8 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { of, throwError } from 'rxjs';
 import { DashboardHomeComponent } from '../../../src/app/features/dashboard/dashboard-home.component';
 import { TaskService } from '../../../src/app/services/task.service';
-import { Task } from '../../../src/app/models/task.interface';
+import { Task } from '../../../src/app/models/task.model';
+import { createMockTask } from '../../helpers/mock-task.helper';
 
 describe('DashboardHomeComponent', () => {
   let component: DashboardHomeComponent;
@@ -31,9 +32,9 @@ describe('DashboardHomeComponent', () => {
 
   it('should load tasks and update stats on init', () => {
     const mockTasks: Task[] = [
-      { id: 1, name: 'Task 1' },
-      { id: 2, name: 'Task 2' },
-      { id: 3, name: 'Task 3' }
+      createMockTask(1, 'Task 1'),
+      createMockTask(2, 'Task 2'),
+      createMockTask(3, 'Task 3')
     ];
     mockTaskService.getTasks.mockReturnValue(of(mockTasks));
 

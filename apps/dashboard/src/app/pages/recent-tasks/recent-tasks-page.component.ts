@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RecentTasksComponent } from '../../features/dashboard/recent-tasks.component';
 import { TaskService } from '../../services/task.service';
-import { Task } from '../../models/task.interface';
+import { Task } from '../../models/task.model';
 
 @Component({
   selector: 'app-recent-tasks-page',

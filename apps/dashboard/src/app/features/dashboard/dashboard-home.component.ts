@@ -5,7 +5,7 @@ import { StatsCardComponent } from './stats-card.component';
 import { RecentTasksComponent } from './recent-tasks.component';
 import { TaskListComponent } from '../tasks/task-list.component';
 import { TaskService } from '../../services/task.service';
-import { Task } from '../../models/task.interface';
+import { Task } from '../../models/task.model';
 
 @Component({
   selector: 'app-dashboard-home',
@@ -44,7 +44,7 @@ import { Task } from '../../models/task.interface';
     <!-- Recent Tasks -->
     <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 lg:gap-6">
       <app-recent-tasks [tasks]="recentTasks"></app-recent-tasks>
-      <app-task-list></app-task-list>
+      <app-task-list [useMockData]="useMockData"></app-task-list>
     </div>
   `
 })
@@ -53,6 +53,7 @@ export class DashboardHomeComponent implements OnInit {
   completedTasks = 0;
   pendingTasks = 0;
   recentTasks: Task[] = [];
+  useMockData = false;
 
   constructor(private taskService: TaskService) {}
 
@@ -60,13 +61,22 @@ export class DashboardHomeComponent implements OnInit {
     this.loadTasks();
   }
 
+  toggleMockData(useMockData: boolean) {
+    this.useMockData = useMockData;
+    this.loadTasks();
+  }
+
   private loadTasks() {
-    this.taskService.getTasks().subscribe({
+    const taskObservable = this.useMockData 
+      ? this.taskService.getMockTasks() 
+      : this.taskService.getTasks();
+      
+    taskObservable.subscribe({
       next: (tasks) => {
         this.recentTasks = tasks;
         this.totalTasks = tasks.length;
-        this.completedTasks = 0; // Will be calculated when we add status
-        this.pendingTasks = tasks.length;
+        this.completedTasks = tasks.filter(t => t.status === 'completed').length;
+        this.pendingTasks = tasks.filter(t => t.status === 'pending' || t.status === 'in-progress').length;
       },
       error: (error) => console.error('Error loading tasks:', error)
     });

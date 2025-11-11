@@ -10,4 +10,9 @@ export class TaskController {
   async getTasks(): Promise<TaskDto[]> {
     return await this.taskDao.get();
   }
+
+  @Get('mocks')
+  async getMockTasks(): Promise<TaskDto[]> {
+    return await this.taskDao.getMocks();
+  }
 }

@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { DatabaseModule } from '../../src/database/database.module';
 import { Task } from '../../src/database/entities/task.entity';
+import { Organization } from '../../src/database/entities/organization.entity';
 
 describe('DatabaseModule', () => {
   let module: TestingModule;
@@ -14,17 +15,22 @@ describe('DatabaseModule', () => {
         TypeOrmModule.forRoot({
           type: 'sqlite',
           database: ':memory:',
-          entities: [Task],
+          entities: [Task, Organization],
           synchronize: true,
         }),
       ],
     }).compile();
 
     dataSource = module.get<DataSource>(DataSource);
-  });
+  }, 10000);
 
   afterEach(async () => {
-    await module.close();
+    if (dataSource?.isInitialized) {
+      await dataSource.destroy();
+    }
+    if (module) {
+      await module.close();
+    }
   });
 
   it('should establish database connection', async () => {
@@ -33,22 +39,37 @@ describe('DatabaseModule', () => {
 
   it('should create Task table', async () => {
     const hasTable = await dataSource.query(
-      "SELECT name FROM sqlite_master WHERE type='table' AND name='task'"
+      "SELECT name FROM sqlite_master WHERE type='table' AND name='tasks'"
     );
     expect(hasTable).toHaveLength(1);
   });
 
   it('should have correct Task table schema', async () => {
-    const columns = await dataSource.query("PRAGMA table_info(task)");
+    const columns = await dataSource.query("PRAGMA table_info(tasks)");
     const columnNames = columns.map(col => col.name);
     
     expect(columnNames).toContain('id');
     expect(columnNames).toContain('name');
+    expect(columnNames).toContain('orgId');
+    expect(columnNames).toContain('adminId');
+    expect(columnNames).toContain('ownerId');
+    expect(columnNames).toContain('isActive');
   });
 
   it('should handle database transactions', async () => {
+    const org = new Organization();
+    org.id = 1;
+    org.name = 'Test Org';
+    await dataSource.manager.save(org);
+
     await dataSource.transaction(async manager => {
-      const task = manager.create(Task, { name: 'Transaction Test' });
+      const task = manager.create(Task, { 
+        name: 'Transaction Test',
+        orgId: 1,
+        adminId: 1,
+        ownerId: 1,
+        isActive: true
+      });
       const saved = await manager.save(task);
       expect(saved.id).toBeDefined();
     });

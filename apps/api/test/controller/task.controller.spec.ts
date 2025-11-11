@@ -1,11 +1,27 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TaskController } from '../../src/controller/task.controller';
-import { TaskDto } from '../../src/controller/dtos/task.dto';
 import { TaskDao } from '../../src/dao/task.dao';
+import { TaskDto } from '../../src/controller/dtos/task.dto';
 
 describe('TaskController', () => {
   let controller: TaskController;
   let taskDao: TaskDao;
+
+  const createMockTaskDto = (id: number, name: string): TaskDto => ({
+    id,
+    name,
+    org: { id: 1, name: 'Test Org' },
+    adminId: 1,
+    ownerId: 1,
+    viewerIds: [],
+    status: 'active',
+    category: 'test',
+    startDate: '2024-01-01',
+    endDate: '2024-01-31',
+    isActive: true,
+    deleteDate: null,
+    permissions: []
+  });
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -25,37 +41,28 @@ describe('TaskController', () => {
   });
 
   describe('getTasks', () => {
-    it('should return an array of tasks', async () => {
-      const mockTasks = [{ id: 1, name: 'Task 1' }, { id: 2, name: 'Task 2' }];
+    it('should return all tasks', async () => {
+      const mockTasks = [createMockTaskDto(1, 'Task 1'), createMockTaskDto(2, 'Task 2')];
       jest.spyOn(taskDao, 'get').mockResolvedValue(mockTasks);
-      
-      const result = await controller.getTasks();
-      
-      expect(Array.isArray(result)).toBe(true);
-      expect(result).toHaveLength(2);
-    });
 
-    it('should return tasks with correct structure', async () => {
-      const mockTasks = [{ id: 1, name: 'Task 1' }];
-      jest.spyOn(taskDao, 'get').mockResolvedValue(mockTasks);
-      
       const result = await controller.getTasks();
-      
-      result.forEach(task => {
-        expect(task).toHaveProperty('id');
-        expect(task).toHaveProperty('name');
-        expect(typeof task.id).toBe('number');
-        expect(typeof task.name).toBe('string');
-      });
-    });
 
-    it('should call taskDao.get with no parameters', async () => {
-      const mockTasks = [{ id: 1, name: 'Task 1' }];
-      jest.spyOn(taskDao, 'get').mockResolvedValue(mockTasks);
-      
-      await controller.getTasks();
-      
       expect(taskDao.get).toHaveBeenCalledWith();
+      expect(result).toEqual(mockTasks);
+    });
+
+    it('should handle empty result', async () => {
+      jest.spyOn(taskDao, 'get').mockResolvedValue([]);
+
+      const result = await controller.getTasks();
+
+      expect(result).toEqual([]);
+    });
+
+    it('should handle dao errors', async () => {
+      jest.spyOn(taskDao, 'get').mockRejectedValue(new Error('Database error'));
+
+      await expect(controller.getTasks()).rejects.toThrow('Database error');
     });
   });
 });

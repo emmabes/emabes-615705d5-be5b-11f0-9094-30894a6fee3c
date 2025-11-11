@@ -100,13 +100,26 @@ export class TaskChartComponent implements OnChanges, AfterViewInit {
   }
 
   private groupTasks(): { [key: string]: number } {
-    // Mock data for now - replace with actual task grouping logic
-    if (this.groupBy === 'status') {
-      return { 'Pending': 5, 'In Progress': 3, 'Completed': 8, 'Blocked': 1 };
-    } else if (this.groupBy === 'priority') {
-      return { 'High': 4, 'Medium': 8, 'Low': 5 };
-    } else {
-      return { 'John': 6, 'Jane': 7, 'Bob': 4 };
+    const grouped: { [key: string]: number } = {};
+    
+    if (!this.tasks || this.tasks.length === 0) {
+      return grouped;
     }
+
+    this.tasks.forEach(task => {
+      let key: string;
+      
+      if (this.groupBy === 'status') {
+        key = task.status || 'Unknown';
+      } else if (this.groupBy === 'priority') {
+        key = task.priority || 'Medium';
+      } else { // assignee
+        key = task.assignedTo || 'Unassigned';
+      }
+      
+      grouped[key] = (grouped[key] || 0) + 1;
+    });
+    
+    return grouped;
   }
 }

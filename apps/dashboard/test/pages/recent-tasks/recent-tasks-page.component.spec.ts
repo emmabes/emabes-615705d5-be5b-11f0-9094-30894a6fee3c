@@ -1,8 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { of, throwError } from 'rxjs';
 import { RecentTasksPageComponent } from '../../../src/app/pages/recent-tasks/recent-tasks-page.component';
 import { TaskService } from '../../../src/app/services/task.service';
-import { Task } from '../../../src/app/models/task.interface';
+import { Task } from '../../../src/app/models/task.model';
+import { createMockTask } from '../../helpers/mock-task.helper';
 
 describe('RecentTasksPageComponent', () => {
   let component: RecentTasksPageComponent;
@@ -15,7 +17,7 @@ describe('RecentTasksPageComponent', () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [RecentTasksPageComponent],
+      imports: [RecentTasksPageComponent, HttpClientTestingModule],
       providers: [{ provide: TaskService, useValue: spy }]
     }).compileComponents();
 
@@ -30,16 +32,16 @@ describe('RecentTasksPageComponent', () => {
 
   it('should load recent tasks on init', () => {
     const mockTasks: Task[] = [
-      { id: 1, name: 'Task 1' },
-      { id: 2, name: 'Task 2' },
-      { id: 3, name: 'Task 3' }
+      createMockTask(1, 'Task 1'),
+      createMockTask(2, 'Task 2'),
+      createMockTask(3, 'Task 3')
     ];
     mockTaskService.getTasks.mockReturnValue(of(mockTasks));
 
     component.ngOnInit();
 
     expect(mockTaskService.getTasks).toHaveBeenCalled();
-    expect(component.recentTasks).toEqual(mockTasks.slice(0, 5));
+    expect(component.recentTasks).toEqual(mockTasks);
   });
 
   it('should handle error when loading tasks', () => {
@@ -52,7 +54,7 @@ describe('RecentTasksPageComponent', () => {
   });
 
   it('should limit to 5 recent tasks', () => {
-    const mockTasks: Task[] = Array.from({ length: 10 }, (_, i) => ({ id: i + 1, name: `Task ${i + 1}` }));
+    const mockTasks: Task[] = Array.from({ length: 10 }, (_, i) => createMockTask(i + 1, `Task ${i + 1}`));
     mockTaskService.getTasks.mockReturnValue(of(mockTasks));
 
     component.ngOnInit();

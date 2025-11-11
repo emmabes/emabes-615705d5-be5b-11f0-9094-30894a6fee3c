@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TaskCardComponent } from '../../../src/app/features/tasks/task-card.component';
-import { Task } from '../../../src/app/models/task.interface';
+import { Task } from '../../../src/app/models/task.model';
+import { createMockTask } from '../../helpers/mock-task.helper';
 
 describe('TaskCardComponent', () => {
   let component: TaskCardComponent;
@@ -13,7 +14,7 @@ describe('TaskCardComponent', () => {
 
     fixture = TestBed.createComponent(TaskCardComponent);
     component = fixture.componentInstance;
-    component.task = { id: 1, name: 'Test Task' };
+    component.task = createMockTask(1, 'Test Task');
   });
 
   it('should create', () => {

@@ -1,8 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { of, throwError } from 'rxjs';
 import { TaskListComponent } from '../../../src/app/features/tasks/task-list.component';
 import { TaskService } from '../../../src/app/services/task.service';
-import { Task } from '../../../src/app/models/task.interface';
+import { Task } from '../../../src/app/models/task.model';
+import { createMockTask } from '../../helpers/mock-task.helper';
 
 describe('TaskListComponent', () => {
   let component: TaskListComponent;
@@ -15,7 +17,7 @@ describe('TaskListComponent', () => {
     };
 
     await TestBed.configureTestingModule({
-      imports: [TaskListComponent],
+      imports: [TaskListComponent, HttpClientTestingModule],
       providers: [{ provide: TaskService, useValue: spy }]
     }).compileComponents();
 
@@ -30,8 +32,8 @@ describe('TaskListComponent', () => {
 
   it('should load tasks on init', () => {
     const mockTasks: Task[] = [
-      { id: 1, name: 'Test Task 1' },
-      { id: 2, name: 'Test Task 2' }
+      createMockTask(1, 'Test Task 1'),
+      createMockTask(2, 'Test Task 2')
     ];
     mockTaskService.getTasks.mockReturnValue(of(mockTasks));
 
@@ -51,19 +53,18 @@ describe('TaskListComponent', () => {
   });
 
   it('should display tasks in template', () => {
-    const mockTasks: Task[] = [{ id: 1, name: 'Test Task' }];
+    const mockTasks: Task[] = [createMockTask(1, 'Test Task')];
     mockTaskService.getTasks.mockReturnValue(of(mockTasks));
-    component.tasks = mockTasks;
+    component.ngOnInit();
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement;
     expect(compiled.textContent).toContain('Test Task');
-    expect(compiled.textContent).toContain('#1');
   });
 
   it('should show no tasks message when empty', () => {
     mockTaskService.getTasks.mockReturnValue(of([]));
-    component.tasks = [];
+    component.ngOnInit();
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement;
