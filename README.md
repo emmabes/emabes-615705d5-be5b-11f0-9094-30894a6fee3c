@@ -112,6 +112,9 @@ Unit tests use mocked dependencies. Integration tests use in-memory SQLite datab
 - making family dinner
 - watching toddler so mom gets a break
 
+### Quick Break from Break
+- hop in to work on the backend a little bit
+
 ## Current Features
 
 - SQLite database with TypeORM
