@@ -1,5 +1,7 @@
 import { Component, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-dashboard-layout',
@@ -55,12 +57,19 @@ import { CommonModule } from '@angular/common';
         <header class="hidden md:block bg-white shadow-sm border-b">
           <div class="px-6 py-4 flex justify-between items-center">
             <h2 class="text-2xl font-semibold text-gray-800">Dashboard</h2>
-            <div class="flex items-center space-x-2">
-              <span class="text-sm text-gray-600">Mock Data</span>
-              <label class="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" class="sr-only peer" (change)="toggleMockData($event)">
-                <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-              </label>
+            <div class="flex items-center space-x-4">
+              <div class="flex items-center space-x-2">
+                <span class="text-sm text-gray-600">Mock Data</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" class="sr-only peer" (change)="toggleMockData($event)">
+                  <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                </label>
+              </div>
+              <button 
+                (click)="logout()"
+                class="text-sm text-gray-600 hover:text-gray-800 px-3 py-1 rounded border border-gray-300 hover:bg-gray-50">
+                Logout
+              </button>
             </div>
           </div>
         </header>
@@ -101,8 +110,18 @@ import { CommonModule } from '@angular/common';
 export class DashboardLayoutComponent {
   @Output() mockDataToggle = new EventEmitter<boolean>();
 
+  constructor(
+    private authService: AuthService,
+    private router: Router
+  ) {}
+
   toggleMockData(event: Event) {
     const target = event.target as HTMLInputElement;
     this.mockDataToggle.emit(target.checked);
+  }
+
+  logout() {
+    this.authService.logout();
+    this.router.navigate(['/login']);
   }
 }

@@ -114,12 +114,21 @@ export class TaskChartComponent implements OnChanges, AfterViewInit {
       } else if (this.groupBy === 'priority') {
         key = task.priority || 'Medium';
       } else { // assignee
-        key = task.assignedTo || 'Unassigned';
+        key = this.getOwnerName(task.ownerId) || 'Unassigned';
       }
       
       grouped[key] = (grouped[key] || 0) + 1;
     });
     
     return grouped;
+  }
+
+  private getOwnerName(ownerId: number): string {
+    const owners = {
+      1: 'admin',
+      2: 'owner', 
+      3: 'user'
+    };
+    return owners[ownerId as keyof typeof owners] || 'Unknown';
   }
 }
