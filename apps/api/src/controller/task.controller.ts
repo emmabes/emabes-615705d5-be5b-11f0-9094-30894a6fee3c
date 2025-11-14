@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, HttpException, InternalServerErrorException } from '@nestjs/common';
 import { TaskDto } from './dtos/task.dto';
 import { TaskDao } from '../dao/task.dao';
 
@@ -8,11 +8,25 @@ export class TaskController {
 
   @Get()
   async getTasks(): Promise<TaskDto[]> {
-    return await this.taskDao.get();
+    try {
+      return await this.taskDao.get();
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Failed to fetch tasks');
+    }
   }
 
   @Get('mocks')
   async getMockTasks(): Promise<TaskDto[]> {
-    return await this.taskDao.getMocks();
+    try {
+      return await this.taskDao.getMocks();
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new InternalServerErrorException('Failed to fetch mock tasks');
+    }
   }
 }

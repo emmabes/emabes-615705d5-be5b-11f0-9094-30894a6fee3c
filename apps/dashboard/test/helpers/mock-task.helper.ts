@@ -1,6 +1,6 @@
 import { Task } from '../../src/app/models/task.model';
 
-export function createMockTask(id: number, name: string): Task {
+export function createMockTask(id: number, name: string, status = 'pending'): Task {
   return {
     id,
     name,
@@ -8,6 +8,12 @@ export function createMockTask(id: number, name: string): Task {
     adminId: 1,
     ownerId: 1,
     isActive: true,
-    permissions: []
+    permissions: [],
+    status,
+    priority: 'medium',
+    category: 'test',
+    startDate: '2024-01-01',
+    endDate: '2024-01-31',
+    deleteDate: undefined
   };
 }

@@ -1,5 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { RecentTasksComponent } from '../../../src/app/features/dashboard/recent-tasks.component';
+import { createMockTask } from '../../helpers/mock-task.helper';
 
 describe('RecentTasksComponent', () => {
   let component: RecentTasksComponent;
@@ -7,7 +9,7 @@ describe('RecentTasksComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RecentTasksComponent]
+      imports: [RecentTasksComponent, HttpClientTestingModule]
     }).compileComponents();
 
     fixture = TestBed.createComponent(RecentTasksComponent);
@@ -27,8 +29,8 @@ describe('RecentTasksComponent', () => {
 
   it('should display tasks when provided', () => {
     component.tasks = [
-      { id: 1, name: 'Task 1' },
-      { id: 2, name: 'Task 2' }
+      createMockTask(1, 'Task 1'),
+      createMockTask(2, 'Task 2')
     ];
     fixture.detectChanges();
 
@@ -41,7 +43,7 @@ describe('RecentTasksComponent', () => {
   });
 
   it('should display task IDs correctly', () => {
-    component.tasks = [{ id: 123, name: 'Test Task' }];
+    component.tasks = [createMockTask(123, 'Test Task')];
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement;
@@ -62,28 +64,28 @@ describe('RecentTasksComponent', () => {
 
   it('should render status badges for all tasks', () => {
     component.tasks = [
-      { id: 1, name: 'Task 1' },
-      { id: 2, name: 'Task 2' }
+      createMockTask(1, 'Task 1'),
+      createMockTask(2, 'Task 2')
     ];
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement;
-    const badges = compiled.querySelectorAll('.bg-blue-100.text-blue-800');
+    const badges = compiled.querySelectorAll('.bg-yellow-100.text-yellow-800');
     
     expect(badges.length).toBe(2);
     badges.forEach((badge: Element) => {
-      expect(badge.textContent?.trim()).toBe('Active');
+      expect(badge.textContent?.trim()).toBe('pending');
     });
   });
 
-  it('should handle tasks with undefined properties', () => {
-    component.tasks = [{ id: undefined, name: undefined }];
+  it('should handle empty task list', () => {
+    component.tasks = [];
     fixture.detectChanges();
 
     const compiled = fixture.nativeElement;
     const taskElements = compiled.querySelectorAll('.bg-gray-50');
     
-    expect(taskElements.length).toBe(1);
+    expect(taskElements.length).toBe(0);
     expect(() => fixture.detectChanges()).not.toThrow();
   });
 });

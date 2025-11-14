@@ -33,9 +33,9 @@ describe('TaskCardComponent', () => {
     expect(bullets.length).toBe(3);
   });
 
-  it('should render 3 placeholder bars', () => {
+  it('should render task card items', () => {
     fixture.detectChanges();
-    const bars = fixture.nativeElement.querySelectorAll('.task-card-bar');
-    expect(bars.length).toBe(3);
+    const items = fixture.nativeElement.querySelectorAll('.task-card-item');
+    expect(items.length).toBe(3);
   });
 });

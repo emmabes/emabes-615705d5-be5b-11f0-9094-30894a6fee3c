@@ -52,42 +52,65 @@ export class TaskChartComponent implements OnChanges, AfterViewInit {
   }
 
   createChart() {
-    // Skip chart creation in test environment or if canvas not available
-    if (!this.chartCanvas?.nativeElement) {
-      this.chart = { data: { labels: [], datasets: [{ data: [] }] }, update: () => {} } as any;
+    if (!this.isChartSupported()) {
+      this.chart = this.createMockChart();
       return;
     }
     
-    let ctx;
-    try {
-      ctx = this.chartCanvas.nativeElement.getContext('2d');
-    } catch (error) {
-      // Canvas not supported in test environment
-      this.chart = { data: { labels: [], datasets: [{ data: [] }] }, update: () => {} } as any;
-      return;
-    }
+    const ctx = this.getCanvasContext();
     if (ctx) {
-      this.chart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: [],
-          datasets: [{
-            data: [],
-            backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444']
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'bottom'
-            }
-          }
-        }
-      });
+      this.chart = new Chart(ctx, this.getChartConfiguration());
       this.updateChart();
     }
+  }
+
+  private isChartSupported(): boolean {
+    return !!this.chartCanvas?.nativeElement;
+  }
+
+  private createMockChart(): any {
+    return { 
+      data: { labels: [], datasets: [{ data: [] }] }, 
+      update: () => {} 
+    };
+  }
+
+  private getCanvasContext(): CanvasRenderingContext2D | null {
+    try {
+      return this.chartCanvas.nativeElement.getContext('2d');
+    } catch (error) {
+      return null;
+    }
+  }
+
+  private getChartConfiguration(): ChartConfiguration {
+    return {
+      type: 'doughnut',
+      data: this.getInitialChartData(),
+      options: this.getChartOptions()
+    };
+  }
+
+  private getInitialChartData() {
+    return {
+      labels: [],
+      datasets: [{
+        data: [],
+        backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#EF4444']
+      }]
+    };
+  }
+
+  private getChartOptions() {
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom' as const
+        }
+      }
+    };
   }
 
   updateChart() {

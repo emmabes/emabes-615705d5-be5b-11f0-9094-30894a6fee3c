@@ -1,13 +1,30 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { Router } from '@angular/router';
 import { DashboardLayoutComponent } from '../../src/app/layout/dashboard-layout.component';
+import { AuthService } from '../../src/app/auth/auth.service';
 
 describe('DashboardLayoutComponent', () => {
   let component: DashboardLayoutComponent;
   let fixture: ComponentFixture<DashboardLayoutComponent>;
 
   beforeEach(async () => {
+    const mockAuthService = {
+      logout: jest.fn(),
+      currentUser$: { subscribe: jest.fn() },
+      isAuthenticated: jest.fn().mockReturnValue(true)
+    };
+
+    const mockRouter = {
+      navigate: jest.fn()
+    };
+
     await TestBed.configureTestingModule({
-      imports: [DashboardLayoutComponent]
+      imports: [DashboardLayoutComponent, HttpClientTestingModule],
+      providers: [
+        { provide: AuthService, useValue: mockAuthService },
+        { provide: Router, useValue: mockRouter }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(DashboardLayoutComponent);

@@ -1,0 +1,49 @@
+<div *ngIf="isLoading" class="flex items-center justify-center py-12">
+  <div class="text-center">
+    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+    <p class="text-gray-600">Loading tasks...</p>
+  </div>
+</div>
+
+<div *ngIf="errorMessage && !isLoading" class="flex items-center justify-center py-12">
+  <div class="text-center">
+    <div class="text-4xl mb-4">⚠️</div>
+    <p class="text-gray-600 mb-4">{{ errorMessage }}</p>
+    <button (click)="retryLoadTasks()" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+      Try Again
+    </button>
+  </div>
+</div>
+
+<div *ngIf="!isLoading && !errorMessage">
+  <div class="mb-8">
+    <app-task-chart [tasks]="recentTasks"></app-task-chart>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-6 lg:mb-8">
+    <app-stats-card 
+      title="Total Tasks" 
+      [value]="totalTasks"
+      iconClass="bg-blue-500"
+      iconBgClass="bg-blue-100">
+    </app-stats-card>
+    
+    <app-stats-card 
+      title="Completed" 
+      [value]="completedTasks"
+      iconClass="bg-green-500"
+      iconBgClass="bg-green-100">
+    </app-stats-card>
+    
+    <app-stats-card 
+      title="Pending" 
+      [value]="pendingTasks"
+      iconClass="bg-yellow-500"
+      iconBgClass="bg-yellow-100">
+    </app-stats-card>
+  </div>
+
+  <div class="mb-6 lg:mb-8">
+    <app-recent-tasks [tasks]="recentTasks"></app-recent-tasks>
+  </div>
+</div>

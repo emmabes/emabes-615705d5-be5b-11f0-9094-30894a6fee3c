@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
 import { Task } from '../database/entities/task.entity';
 import { TaskDto } from '../controller/dtos/task.dto';
 
@@ -12,170 +12,137 @@ export class TaskDao {
   ) {}
 
   async get(taskDtos?: TaskDto[]): Promise<TaskDto[]> {
-    if (!taskDtos || taskDtos.length === 0) {
-      const tasks = await this.taskRepository.find({ relations: ['org'] });
-      return tasks.map(task => this.mapToDto(task));
+    try {
+      if (!taskDtos || taskDtos.length === 0) {
+        return this.getAllTasks();
+      }
+      
+      const validIds = this.extractValidIds(taskDtos);
+      
+      if (validIds.length === 0) return [];
+      
+      return this.getTasksByIds(validIds);
+    } catch (error) {
+      this.handleGetError(error);
     }
+  }
 
-    const results: TaskDto[] = [];
+  private async getAllTasks(): Promise<TaskDto[]> {
+    const tasks = await this.taskRepository.find({ relations: ['org'] });
+    return tasks.map(task => this.mapToDto(task));
+  }
+
+  private extractValidIds(taskDtos: TaskDto[]): number[] {
+    const validIds: number[] = [];
     
     for (const dto of taskDtos) {
-      if (dto.id === null || dto.id === undefined) {
-        continue;
-      }
-
-      if (typeof dto.id !== 'number' || !Number.isInteger(dto.id)) {
-        throw new Error(`Invalid id format: ${dto.id}`);
-      }
-
-      const task = await this.taskRepository.findOne({ 
-        where: { id: dto.id },
-        relations: ['org']
-      });
+      if (dto.id === null || dto.id === undefined) continue;
       
-      if (task) {
-        results.push(this.mapToDto(task));
-      }
+      this.validateId(dto.id);
+      validIds.push(dto.id);
     }
+    
+    return validIds;
+  }
 
-    return results;
+  private validateId(id: any): void {
+    if (typeof id !== 'number' || !Number.isInteger(id)) {
+      throw new BadRequestException(`Invalid id format: ${id}`);
+    }
+  }
+
+  private async getTasksByIds(validIds: number[]): Promise<TaskDto[]> {
+    const tasks = await this.taskRepository.find({
+      where: { id: In(validIds) },
+      relations: ['org']
+    });
+    
+    return tasks.map(task => this.mapToDto(task));
+  }
+
+  private handleGetError(error: any): never {
+    if (error instanceof BadRequestException) {
+      throw error;
+    }
+    throw new InternalServerErrorException('Failed to retrieve tasks from database');
   }
 
   async getMocks(): Promise<TaskDto[]> {
-    return this.getMockTasks();
+    try {
+      return this.getMockTasks();
+    } catch (error) {
+      throw new InternalServerErrorException('Failed to generate mock tasks');
+    }
   }
 
   private getMockTasks(): TaskDto[] {
     return [
-      {
-        id: 1,
-        name: 'Design System Implementation',
-        org: { id: 1, name: 'Engineering' },
-        adminId: 1,
-        ownerId: 2,
-        viewerIds: [3],
-        status: 'in-progress',
-        priority: 'high',
-        category: 'development',
-        startDate: '2024-01-15',
-        endDate: '2024-02-15',
-        isActive: true,
-        deleteDate: null,
-        permissions: [{ id: 1, action: 'read' }, { id: 2, action: 'write' }]
-      },
-      {
-        id: 2,
-        name: 'User Authentication Module',
-        org: { id: 1, name: 'Engineering' },
-        adminId: 1,
-        ownerId: 2,
-        viewerIds: [3],
-        status: 'completed',
-        priority: 'medium',
-        category: 'security',
-        startDate: '2024-01-01',
-        endDate: '2024-01-30',
-        isActive: true,
-        deleteDate: null,
-        permissions: [{ id: 1, action: 'read' }]
-      },
-      {
-        id: 3,
-        name: 'Database Migration Scripts',
-        org: { id: 2, name: 'DevOps' },
-        adminId: 1,
-        ownerId: 2,
-        viewerIds: [3],
-        status: 'pending',
-        priority: 'high',
-        category: 'infrastructure',
-        startDate: '2024-02-01',
-        endDate: '2024-02-28',
-        isActive: true,
-        deleteDate: null,
-        permissions: [{ id: 1, action: 'read' }, { id: 3, action: 'execute' }]
-      },
-      {
-        id: 4,
-        name: 'API Documentation Update',
-        org: { id: 1, name: 'Engineering' },
-        adminId: 1,
-        ownerId: 2,
-        viewerIds: [3],
-        status: 'in-progress',
-        priority: 'low',
-        category: 'documentation',
-        startDate: '2024-01-20',
-        endDate: '2024-02-10',
-        isActive: true,
-        deleteDate: null,
-        permissions: [{ id: 1, action: 'read' }, { id: 2, action: 'write' }]
-      },
-      {
-        id: 5,
-        name: 'Performance Optimization',
-        org: { id: 1, name: 'Engineering' },
-        adminId: 1,
-        ownerId: 2,
-        viewerIds: [3],
-        status: 'pending',
-        priority: 'medium',
-        category: 'performance',
-        startDate: '2024-02-15',
-        endDate: '2024-03-15',
-        isActive: true,
-        deleteDate: null,
-        permissions: [{ id: 1, action: 'read' }]
-      },
-      {
-        id: 6,
-        name: 'Security Audit',
-        org: { id: 3, name: 'Security' },
-        adminId: 1,
-        ownerId: 2,
-        viewerIds: [3],
-        status: 'completed',
-        priority: 'high',
-        category: 'security',
-        startDate: '2024-01-05',
-        endDate: '2024-01-25',
-        isActive: true,
-        deleteDate: null,
-        permissions: [{ id: 1, action: 'read' }, { id: 4, action: 'audit' }]
-      },
-      {
-        id: 7,
-        name: 'Mobile App Testing',
-        org: { id: 4, name: 'QA' },
-        adminId: 2,
-        ownerId: 3,
-        viewerIds: [1],
-        status: 'in-progress',
-        priority: 'medium',
-        category: 'testing',
-        startDate: '2024-01-25',
-        endDate: '2024-02-20',
-        isActive: true,
-        deleteDate: null,
-        permissions: [{ id: 1, action: 'read' }, { id: 5, action: 'test' }]
-      },
-      {
-        id: 8,
-        name: 'Customer Feedback Analysis',
-        org: { id: 5, name: 'Product' },
-        adminId: 3,
-        ownerId: 1,
-        viewerIds: [2],
-        status: 'pending',
-        priority: 'low',
-        category: 'research',
-        startDate: '2024-02-05',
-        endDate: '2024-02-25',
-        isActive: true,
-        deleteDate: null,
-        permissions: [{ id: 1, action: 'read' }, { id: 6, action: 'analyze' }]
-      }
+      this.createMockTask(1, 'Design System Implementation', 'Engineering', 'in-progress', 'high', 'development', -10, 7),
+      this.createMockTask(2, 'User Authentication Module', 'Engineering', 'completed', 'medium', 'security', -14, 2),
+      this.createMockTask(3, 'Database Migration Scripts', 'DevOps', 'pending', 'high', 'infrastructure', 5, 25),
+      this.createMockTask(4, 'API Documentation Update', 'Engineering', 'in-progress', 'low', 'documentation', -5, 5),
+      this.createMockTask(5, 'Performance Optimization', 'Engineering', 'pending', 'medium', 'performance', 8, 30),
+      this.createMockTask(6, 'Security Audit', 'Security', 'completed', 'high', 'security', -10, 4),
+      this.createMockTask(7, 'Mobile App Testing', 'QA', 'in-progress', 'medium', 'testing', -3, 9),
+      this.createMockTask(8, 'Customer Feedback Analysis', 'Product', 'pending', 'low', 'research', 10, 35)
     ];
+  }
+
+  private createMockTask(
+    id: number,
+    name: string,
+    orgName: string,
+    status: string,
+    priority: string,
+    category: string,
+    startDaysOffset: number,
+    endDaysOffset: number
+  ): TaskDto {
+    return {
+      id,
+      name,
+      org: this.createMockOrg(orgName),
+      adminId: 1,
+      ownerId: 2,
+      viewerIds: [3],
+      status,
+      priority,
+      category,
+      startDate: this.formatDate(this.addDays(new Date(), startDaysOffset)),
+      endDate: this.formatDate(this.addDays(new Date(), endDaysOffset)),
+      isActive: true,
+      deleteDate: null,
+      permissions: this.createMockPermissions(status)
+    };
+  }
+
+  private createMockOrg(name: string) {
+    const orgMap = {
+      'Engineering': { id: 1, name: 'Engineering' },
+      'DevOps': { id: 2, name: 'DevOps' },
+      'Security': { id: 3, name: 'Security' },
+      'QA': { id: 4, name: 'QA' },
+      'Product': { id: 5, name: 'Product' }
+    };
+    return orgMap[name] || { id: 1, name: 'Engineering' };
+  }
+
+  private createMockPermissions(status: string) {
+    const basePermissions = [{ id: 1, action: 'read' }];
+    if (status === 'in-progress') {
+      basePermissions.push({ id: 2, action: 'write' });
+    }
+    return basePermissions;
+  }
+
+  private formatDate(date: Date): string {
+    return date.toISOString().split('T')[0];
+  }
+
+  private addDays(date: Date, days: number): Date {
+    const result = new Date(date);
+    result.setDate(result.getDate() + days);
+    return result;
   }
 
   private mapToDto(task: Task): TaskDto {

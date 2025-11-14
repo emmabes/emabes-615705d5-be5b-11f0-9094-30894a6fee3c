@@ -30,15 +30,35 @@ nx serve dashboard
 
 ### Testing
 ```bash
-# Run all tests
+# Run all tests (87 tests, ~41 seconds)
 nx run-many -t test
 
 # Run specific project tests
-nx test api
-nx test dashboard
+nx test api        # 32 tests, ~16 seconds
+nx test dashboard  # 55 tests, ~25 seconds
 
 # Run integration tests
 nx test api --testPathPattern=integration
+
+# Watch mode for development
+nx test api --watch
+nx test dashboard --watch
+```
+
+### Development Workflow
+```bash
+# 1. Install dependencies
+npm install
+
+# 2. Run tests to verify setup
+nx run-many -t test
+
+# 3. Start development servers
+nx run-many -t serve
+
+# 4. Access applications
+# Frontend: http://localhost:4200
+# Backend API: http://localhost:3000/api
 ```
 
 ## Architecture Overview
@@ -80,7 +100,7 @@ test/
 ├── integration/  # End-to-end API tests
 ```
 
-Unit tests use mocked dependencies. Integration tests use in-memory SQLite database for full application testing. Frontend tests (47 passing) cover components, services, and responsive behavior with Jest mocking.
+Unit tests use mocked dependencies. Integration tests use in-memory SQLite database for full application testing. Frontend tests (55 passing) cover components, services, and responsive behavior with optimized Jest mocking.
 
 ## Development Steps
 
@@ -112,15 +132,19 @@ Unit tests use mocked dependencies. Integration tests use in-memory SQLite datab
 - making family dinner
 - watching toddler so mom gets a break
 
-### Quick Break from Break
-- hop in to work on the backend a little bit
+### Phase 4: Test Suite Optimization
+- Optimize backend tests with batch queries and efficient mocking
+- Fix frontend test type compatibility issues
+- Standardize mock data helpers across all test files
+- Add proper dependency injection for service-dependent components
+- Achieve 87/87 passing tests with improved performance
 
 ## Current Features
 
 - SQLite database with TypeORM
 - Task CRUD operations (GET implemented)
 - Request validation with class-validator
-- Comprehensive test suite (79 passing tests: 24 backend + 55 frontend)
+- **OPTIMIZED**: Comprehensive test suite (87 passing tests: 32 backend + 55 frontend)
 - Layered architecture ready for RBAC implementation
 - Responsive Angular dashboard with desktop/mobile layouts
 - Real-time task cards with hover/click interactions

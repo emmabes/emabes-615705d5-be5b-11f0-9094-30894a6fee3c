@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { ChangeDetectorRef } from '@angular/core';
 import { of, throwError } from 'rxjs';
 import { DashboardHomeComponent } from '../../../src/app/features/dashboard/dashboard-home.component';
 import { TaskService } from '../../../src/app/services/task.service';
@@ -13,12 +14,20 @@ describe('DashboardHomeComponent', () => {
 
   beforeEach(async () => {
     const spy = {
-      getTasks: jest.fn()
+      getTasks: jest.fn(),
+      getMockTasks: jest.fn()
+    };
+
+    const mockCdr = {
+      markForCheck: jest.fn()
     };
 
     await TestBed.configureTestingModule({
       imports: [DashboardHomeComponent, HttpClientTestingModule],
-      providers: [{ provide: TaskService, useValue: spy }]
+      providers: [
+        { provide: TaskService, useValue: spy },
+        { provide: ChangeDetectorRef, useValue: mockCdr }
+      ]
     }).compileComponents();
 
     fixture = TestBed.createComponent(DashboardHomeComponent);
@@ -53,7 +62,11 @@ describe('DashboardHomeComponent', () => {
 
     component.ngOnInit();
 
-    expect(console.error).toHaveBeenCalledWith('Error loading tasks:', expect.any(Error));
+    expect(console.error).toHaveBeenCalledWith('Error loading tasks', expect.objectContaining({
+      message: expect.any(String),
+      status: expect.any(String),
+      timestamp: expect.any(String)
+    }));
   });
 
   it('should initialize with default values', () => {

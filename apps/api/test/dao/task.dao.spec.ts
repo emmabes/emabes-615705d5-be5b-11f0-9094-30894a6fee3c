@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, In } from 'typeorm';
+import { BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import { TaskDao } from '../../src/dao/task.dao';
 import { Task } from '../../src/database/entities/task.entity';
 import { TaskDto } from '../../src/controller/dtos/task.dto';
@@ -45,56 +46,47 @@ describe('TaskDao', () => {
 
   describe('get', () => {
     it('should return all tasks when no parameter provided', async () => {
+      const mockTasks = [createMockTask(1, 'Task 1'), createMockTask(2, 'Task 2')];
+      jest.spyOn(repository, 'find').mockResolvedValue(mockTasks);
+
       const result = await dao.get();
 
-      expect(result).toHaveLength(8); // Mock data has 8 tasks
+      expect(repository.find).toHaveBeenCalledWith({ relations: ['org'] });
+      expect(result).toHaveLength(2);
       expect(result[0].id).toBe(1);
-      expect(result[0].name).toBe('Design System Implementation');
     });
 
-    it('should return all tasks when empty array provided', async () => {
-      const result = await dao.get([]);
+    it('should return specific tasks by ID using batch query', async () => {
+      const mockTasks = [createMockTask(1, 'Task 1')];
+      jest.spyOn(repository, 'find').mockResolvedValue(mockTasks);
 
-      expect(result).toHaveLength(8); // Mock data has 8 tasks
-    });
+      const mockDtos = [{ id: 1, name: '', org: { id: 1, name: 'Test' }, adminId: 1, ownerId: 1, isActive: true, permissions: [] } as TaskDto];
 
-    it('should return specific tasks by ID', async () => {
-      jest.spyOn(repository, 'findOne')
-        .mockResolvedValueOnce(createMockTask(1, 'Task 1'))
-        .mockResolvedValueOnce(createMockTask(3, 'Task 3'));
+      const result = await dao.get(mockDtos);
 
-      const mockDto = { 
-        id: 1, 
-        name: '', 
-        org: { id: 1, name: 'Test' }, 
-        adminId: 1, 
-        ownerId: 1, 
-        isActive: true, 
-        permissions: [] 
-      } as TaskDto;
-
-      const result = await dao.get([mockDto]);
-
+      expect(repository.find).toHaveBeenCalledWith({
+        where: { id: In([1]) },
+        relations: ['org']
+      });
       expect(result).toHaveLength(1);
-      expect(result[0].id).toBe(1);
     });
 
-    it('should handle non-existent ID', async () => {
-      jest.spyOn(repository, 'findOne').mockResolvedValue(null);
+    it('should throw BadRequestException for invalid ID format', async () => {
+      const mockDto = { id: 'invalid', name: '', org: { id: 1, name: 'Test' }, adminId: 1, ownerId: 1, isActive: true, permissions: [] } as any;
 
-      const mockDto = { 
-        id: 999, 
-        name: '', 
-        org: { id: 1, name: 'Test' }, 
-        adminId: 1, 
-        ownerId: 1, 
-        isActive: true, 
-        permissions: [] 
-      } as TaskDto;
+      await expect(dao.get([mockDto])).rejects.toThrow(BadRequestException);
+    });
 
-      const result = await dao.get([mockDto]);
 
-      expect(result).toEqual([]);
+  });
+
+  describe('getMocks', () => {
+    it('should return 8 mock tasks', async () => {
+      const result = await dao.getMocks();
+
+      expect(result).toHaveLength(8);
+      expect(result[0].name).toBe('Design System Implementation');
+      expect(result[0].org.name).toBe('Engineering');
     });
   });
 });

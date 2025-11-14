@@ -5,16 +5,18 @@ import { DashboardLayoutComponent } from './layout/dashboard-layout.component';
 import { DashboardHomeComponent } from './features/dashboard/dashboard-home.component';
 import { LoginComponent } from './auth/login.component';
 import { AuthService } from './auth/auth.service';
+import { NotificationComponent } from './shared/notification.component';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, DashboardLayoutComponent, DashboardHomeComponent, LoginComponent],
+  imports: [CommonModule, DashboardLayoutComponent, DashboardHomeComponent, LoginComponent, NotificationComponent],
   selector: 'app-root',
   template: `
     <app-login *ngIf="!isAuthenticated"></app-login>
     <app-dashboard-layout *ngIf="isAuthenticated" (mockDataToggle)="onMockDataToggle($event)">
       <app-dashboard-home #dashboardHome></app-dashboard-home>
     </app-dashboard-layout>
+    <app-notifications></app-notifications>
   `,
 })
 export class AppComponent implements OnInit {
